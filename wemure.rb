@@ -68,11 +68,12 @@ def send_future_releases(todays_date)
   else
     if $future_releases[0][:date] - todays_date >= 7
       finished_weekly_releases = true
+      message += "There's no new music coming out this week.\n"
       message += "\n"
       message += "Future releases:\n"
     else
       message += "\n"
-      message += "Music that will be released next week:\n"
+      message += "Music that will be released this week:\n"
     end
     $future_releases.each {
       |release| if !finished_weekly_releases and release[:date] - todays_date >= 7
