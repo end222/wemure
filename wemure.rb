@@ -6,6 +6,7 @@ $future_releases = []
 $email = ""
 $from = ""
 
+# Make a request to the MusicBrainz API to get the artist's releases
 def make_request(artist_id)
   base_url = "https://musicbrainz.org/ws/2/artist/"
   query_options = "?inc=release-groups&fmt=json"
@@ -29,6 +30,9 @@ def make_request(artist_id)
   return data
 end
 
+# Read the configuration options present in the file located in:
+# /etc/wemure.conf
+# The syntax of the file is explained in the Readme
 def read_config_file()
   artist_ids = []
   File.open("/etc/wemure.conf", "r") do |file|
@@ -83,7 +87,6 @@ def send_future_releases(todays_date)
     }
   end
 
-  puts message
   Net::SMTP.start('localhost') do |smtp|
     smtp.send_message message, $from, $email
   end
@@ -100,7 +103,6 @@ artist_ids.each {
   |id| data = make_request(id)
   data["release-groups"].each {
     |release| release_date = release["first-release-date"].tr('-', '').to_i
-    puts release["title"] + " - " + release["first-release-date"].tr('-', '')
     if release_date >= todays_date
       $future_releases += [{ :name => release["title"], :date => release_date,
                              :artist => data["name"], :format => release["primary-type"]}]
