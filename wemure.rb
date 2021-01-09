@@ -48,34 +48,64 @@ def read_config_file()
   return artist_ids
 end
 
-def send_future_releases()
-  message = <<MESSAGE_END
-From: #{$from}
-To: #{$email}
-Subject: Weekly Music Releases
+# Send an email to the user with the newest releases
+# The next week will be separated from the rest of the releases
+def send_future_releases(todays_date)
+  # Change to true whenever the weekly releases have been added to the message
+  # After changing the value to true, 
+  finished_weekly_releases = false
+  message = "From: #{$from}\n"
+  message += "To: #{$email}\n"
+  message += "Subject: Weekly Music Releases\n"
 
-Weekly Music Releases
-MESSAGE_END
+  if $future_releases.length() == 0
+    message += "Sadly, there's no new music comming from your favorite artists.\n"
+    message += "You may want to add more artists to your configuration file.\n"
+  else
+    if $future_releases[0][:date] - todays_date >= 7
+      finished_weekly_releases = true
+      message += "\n"
+      message += "Future releases:\n"
+    else
+      message += "\n"
+      message += "Music that will be released next week:\n"
+    end
+    $future_releases.each {
+      |release| if !finished_weekly_releases and release[:date] - todays_date >= 7
+        finished_weekly_releases = true
+        message += "\n"
+        message += "Future releases:\n"
+      end
+        date = release[:date].to_i
+        message += (date % 100).to_s + "/" + (date / 100 % 100).to_s + "/" + (date / 10000).to_s
+        message += " \"" + release[:name] + "\" " + release[:format] + " by " + release[:artist]
+        message += "\n"
+    }
+  end
 
+  puts message
   Net::SMTP.start('localhost') do |smtp|
     smtp.send_message message, $from, $email
   end
 end
 
+# Get an array of the MusicBrainz IDs of the artists
 artist_ids = read_config_file()
+
+# Get current date
 time = Time.new
-date = time.year * 10000 + time.month * 100 + time.day
+todays_date = time.year * 10000 + time.month * 100 + time.day
 
 artist_ids.each {
   |id| data = make_request(id)
   data["release-groups"].each {
     |release| release_date = release["first-release-date"].tr('-', '').to_i
     puts release["title"] + " - " + release["first-release-date"].tr('-', '')
-    if release_date >= date
-      $future_releases += [{ name: release["title"], date: release_date, artist: data["name"], format: release["primary-type"]}]
+    if release_date >= todays_date
+      $future_releases += [{ :name => release["title"], :date => release_date,
+                             :artist => data["name"], :format => release["primary-type"]}]
     end
   }
 }
-puts "Future releases"
-puts $future_releases
-send_future_releases()
+$future_releases.sort_by!{ |hsh| hsh[:zip] }
+send_future_releases(todays_date)
