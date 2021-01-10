@@ -1,3 +1,5 @@
+#!/usr/bin/ruby
+
 require 'faraday'
 require "json"
 require 'net/smtp'
@@ -82,7 +84,7 @@ def send_future_releases(todays_date)
         message += "Future releases:\n"
       end
         date = release[:date].to_i
-        message += (date % 100).to_s + "/" + (date / 100 % 100).to_s + "/" + (date / 10000).to_s
+        message += (date % 100).to_s + "/" + (date / 100 % 100).to_s + "/" + (date / 10000).to_s + ":"
         message += " \"" + release[:name] + "\" " + release[:format] + " by " + release[:artist]
         message += "\n"
     }
@@ -110,5 +112,5 @@ artist_ids.each {
     end
   }
 }
-$future_releases.sort_by!{ |hsh| hsh[:zip] }
+$future_releases.sort_by!{ |hsh| hsh[:date] }
 send_future_releases(todays_date)
