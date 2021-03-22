@@ -63,7 +63,6 @@ def send_future_releases(todays_date)
   message = "From: #{$from}\n"
   message += "To: #{$email}\n"
   message += "Subject: Weekly Music Releases\n"
-  message += "Subject: Weekly Music Releases\n"
   message += "Content-Type: text/plain; charset=UTF-8\n"
 
   if $future_releases.length() == 0
