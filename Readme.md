@@ -12,7 +12,7 @@ WeMuRe is a simple script that keep you up to date with the latest releases of y
 
 WeMuRe uses a configuration file located in **/etc/wemure.conf** with the sender and recipient addresses that will be used to send the mail, along with the MusicBrainz IDs of the artists that user likes, so that he is notified whenever they release new music.
 
-WeMuRe uses MusicBrainz IDs instead of the name of the artist so as to avoid confussion in cases where several artists use the same name.
+WeMuRe uses MusicBrainz IDs instead of the name of the artist so as to avoid confusion in cases where several artists use the same name.
 
 Example configuration file:
 ```
